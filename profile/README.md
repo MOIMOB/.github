@@ -4,38 +4,32 @@
 
 Welcome to MOIMOB! We create simple, easy-to-use applications that solve everyday problems with consistent experience and availability across multiple platforms.
 
-## 🚀 Featured Applications
-
-### 📊 Monthly Bill Planner
-**Comprehensive financial management made simple**
-- ✅ Add income, bills & savings
-- ✅ Custom pay periods
-- ✅ Mark bills as paid
-- ✅ Multiple plannings
-- ✅ PDF summary exports
-- ✅ Visual graphs & tracking
-
-📱 [Google Play](https://play.google.com/store/apps/details?id=com.moimob.billplanner&hl=en) • 🍎 [App Store](https://apps.apple.com/us/app/monthly-bill-planner/id1663545098) • 🌐 [Website](https://billplanner.app)
+## 🌟 Featured Open Source Project
 
 ### 🍸 Drinkable
 **Find cocktails to make with ingredients available at home**
 
-Simple interface for cocktail enthusiasts and home bartenders.
+Our flagship open source application with a simple interface for cocktail enthusiasts and home bartenders. Explore the code, contribute, and help make cocktail discovery even better!
 
-📱 [Google Play](https://play.google.com/store/apps/details?id=com.moimob.drinkable) • 🍎 [App Store](https://apps.apple.com/us/app/drinkable/id6480014126)
+🔗 **[View Source Code](https://github.com/MOIMOB/drinkable)** • 📱 [Google Play](https://play.google.com/store/apps/details?id=com.moimob.drinkable) • 🍎 [App Store](https://apps.apple.com/us/app/drinkable/id6480014126)
 
-### 🎲 Shut the Box
-**Classic dice game with strategy**
+---
 
-Players try to shut numbered boxes by rolling dice and using strategy to clear the board.
+## 📱 More Applications
 
-📱 [Google Play](https://play.google.com/store/apps/details?id=com.moimob.shutthebox&hl=en) • 🍎 [App Store](https://apps.apple.com/ee/app/shut-the-box-board-game/id6463397065)
+We develop multiple applications focused on solving everyday problems. Visit our website to explore our complete app portfolio including:
 
-## 🌟 What We Do
+- **Monthly Bill Planner** - Comprehensive financial management
+- **Shut the Box** - Classic dice strategy game
+- And more coming soon!
 
+🌐 **[Explore All Apps at moimob.com](https://moimob.com)**
+
+## 🚀 What We Do
+
+- **Open Source Development**: Contributing to the community with quality applications
 - **Mobile Development**: Native Android and iOS applications
 - **Web Development**: Modern web applications and websites
-- **Open Source**: Contributing to the developer community
 - **User Experience**: Focus on intuitive, accessible design
 
 ## 💻 Tech Stack
@@ -43,7 +37,15 @@ Players try to shut numbered boxes by rolling dice and using strategy to clear t
 - **Frontend**: Angular, TypeScript, TailwindCSS, DaisyUI
 - **Mobile**: Native Android & iOS development
 - **Design**: Consistent UI/UX across all platforms
-- **Tools**: Modern development workflow and best practices
+- **Open Source**: Community-driven development
+
+## 🤝 Contributing
+
+We welcome contributions to our open source projects! Check out our repositories and feel free to:
+- 🐛 Report issues
+- 💡 Suggest features
+- 🔧 Submit pull requests
+- 📖 Improve documentation
 
 ## 🌍 Connect With Us
 
@@ -53,4 +55,4 @@ Players try to shut numbered boxes by rolling dice and using strategy to clear t
 
 ---
 
-*Building apps that make everyday life easier, one solution at a time.*
+*Building open source apps that make everyday life easier, one solution at a time.*

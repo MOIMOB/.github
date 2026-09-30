@@ -4,19 +4,19 @@
 
 Welcome to MOIMOB! Creating simple, easy-to-use applications that solve everyday problems with consistent experience and availability across multiple platforms.
 
-## 🤝 Contributing
+## Contributing
 
 Contributions to open source projects are welcome! Check out the repositories and feel free to:
-- 🐛 Report issues
-- 💡 Suggest features
-- 🔧 Submit pull requests
-- 📖 Improve documentation
+-  Report issues
+-  Suggest features
+-  Submit pull requests
+-  Improve documentation
 
-## 🌍 Connect
+##  Connect
 
-- 🌐 **Website**: [moimob.com](https://moimob.com)
-- 📧 **Email**: contact@moimob.com
-- 📍 **Location**: Sweden
+-  **Website**: [moimob.com](https://moimob.com)
+-  **Email**: contact@moimob.com
+-  **Location**: Sweden
 
 ---
 

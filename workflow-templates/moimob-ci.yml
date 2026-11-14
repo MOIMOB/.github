@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [$default-branch]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ci:
+    uses: MOIMOB/.github/.github/workflows/ci.yml@v1
+    # Defaults = MOIMOB standard. Turn parts off/on, e.g.:
+    # with:
+    #   lint: false
+    #   database: true
+    #   e2e: playwright
+    #   e2e-supabase: true

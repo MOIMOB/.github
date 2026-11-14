@@ -1,0 +1,6 @@
+{
+  "name": "MOIMOB CI",
+  "description": "Shared MOIMOB CI: format, lint, test, build, optional Supabase database + e2e jobs.",
+  "iconName": "octicon check",
+  "categories": ["JavaScript", "TypeScript"]
+}

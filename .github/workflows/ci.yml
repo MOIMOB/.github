@@ -1,0 +1,214 @@
+# MOIMOB shared CI. Call from an app repo:
+#
+#   jobs:
+#     ci:
+#       uses: MOIMOB/.github/.github/workflows/ci.yml@v1
+#       with: { lint: false, e2e: cypress }
+#
+# Every part is a toggle; defaults = the MOIMOB standard (hauslog).
+# Need something extra? Add your own job next to `ci:` using MOIMOB/.github/actions/setup@v1.
+name: Shared CI
+
+on:
+  workflow_call:
+    inputs:
+      mise-tools:
+        description: Tools to install from mise.toml (space-separated). Empty = all.
+        type: string
+        default: node
+
+      # --- build job -------------------------------------------------------
+      fastlane-metadata:
+        description: Validate fastlane/metadata/android (Play Store limits).
+        type: boolean
+        default: false
+      format-check:
+        description: npm run format:check
+        type: boolean
+        default: true
+      lint:
+        description: npm run lint
+        type: boolean
+        default: true
+      test:
+        description: npm test
+        type: boolean
+        default: true
+      test-args:
+        description: Extra args passed to npm test (after --).
+        type: string
+        default: ''
+      build:
+        description: npm run <build-script>
+        type: boolean
+        default: true
+      build-script:
+        type: string
+        default: build
+      post-build:
+        description: Shell commands run after build (e.g. npx cap copy).
+        type: string
+        default: ''
+
+      # --- supabase (database + e2e jobs) ----------------------------------
+      supabase-cli-version:
+        description: Install this Supabase CLI version. Empty = use the devDependency via npx.
+        type: string
+        default: ''
+
+      # --- database job ----------------------------------------------------
+      database:
+        description: Run the database job (local Supabase + pgTAP).
+        type: boolean
+        default: false
+      database-commands:
+        type: string
+        default: npm run db:test
+      database-types-check:
+        description: npm run db:types, then fail if generated files changed.
+        type: boolean
+        default: true
+      database-supabase-exclude:
+        type: string
+        default: studio,imgproxy,mailpit,logflare,vector,supavisor,edge-runtime
+
+      # --- e2e job ---------------------------------------------------------
+      e2e:
+        description: none | playwright | cypress
+        type: string
+        default: none
+      e2e-supabase:
+        description: Start local Supabase before e2e.
+        type: boolean
+        default: false
+      e2e-supabase-exclude:
+        type: string
+        default: studio,imgproxy,logflare,vector,supavisor,edge-runtime
+      e2e-command:
+        description: Playwright command. (Cypress uses cypress run.)
+        type: string
+        default: npm run e2e
+      e2e-start:
+        description: Cypress only. Dev server command.
+        type: string
+        default: npm start
+      e2e-wait-on:
+        description: Cypress only. URL to wait for before running.
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - if: inputs.fastlane-metadata
+        uses: ashutoshgngwr/validate-fastlane-supply-metadata@v2
+        with:
+          usePlayStoreLocales: true
+
+      - uses: jdx/mise-action@v2
+        with:
+          install_args: ${{ inputs.mise-tools }}
+      - run: npm ci
+
+      - if: inputs.format-check
+        run: npm run format:check
+      - if: inputs.lint
+        run: npm run lint
+      - if: inputs.test
+        env:
+          TEST_ARGS: ${{ inputs.test-args }}
+        run: |
+          if [ -n "$TEST_ARGS" ]; then npm test -- $TEST_ARGS; else npm test; fi
+      - if: inputs.build
+        run: npm run "${{ inputs.build-script }}"
+      - if: inputs.post-build != ''
+        env:
+          POST_BUILD: ${{ inputs.post-build }}
+        run: eval "$POST_BUILD"
+
+  database:
+    if: inputs.database
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: jdx/mise-action@v2
+        with:
+          install_args: ${{ inputs.mise-tools }}
+      - run: npm ci
+      - if: inputs.supabase-cli-version != ''
+        uses: supabase/setup-cli@v1
+        with:
+          version: ${{ inputs.supabase-cli-version }}
+      - name: Start Supabase
+        env:
+          SB: ${{ inputs.supabase-cli-version != '' && 'supabase' || 'npx supabase' }}
+          EXCLUDE: ${{ inputs.database-supabase-exclude }}
+        run: $SB start ${EXCLUDE:+-x $EXCLUDE}
+      - env:
+          CMDS: ${{ inputs.database-commands }}
+        run: eval "$CMDS"
+      - if: inputs.database-types-check
+        name: Generated types match migrations
+        run: npm run db:types && git diff --exit-code
+
+  e2e:
+    if: inputs.e2e != 'none'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: jdx/mise-action@v2
+        with:
+          install_args: ${{ inputs.mise-tools }}
+      - run: npm ci
+
+      - if: inputs.e2e-supabase && inputs.supabase-cli-version != ''
+        uses: supabase/setup-cli@v1
+        with:
+          version: ${{ inputs.supabase-cli-version }}
+      - if: inputs.e2e-supabase
+        name: Start Supabase
+        env:
+          SB: ${{ inputs.supabase-cli-version != '' && 'supabase' || 'npx supabase' }}
+          EXCLUDE: ${{ inputs.e2e-supabase-exclude }}
+        run: $SB start ${EXCLUDE:+-x $EXCLUDE}
+
+      # Playwright
+      - if: inputs.e2e == 'playwright'
+        run: npx playwright install --with-deps chromium
+      - if: inputs.e2e == 'playwright'
+        env:
+          CMD: ${{ inputs.e2e-command }}
+        run: eval "$CMD"
+      - if: failure() && inputs.e2e == 'playwright'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
+          if-no-files-found: ignore
+
+      # Cypress
+      - if: inputs.e2e == 'cypress'
+        uses: cypress-io/github-action@v6
+        with:
+          install: false
+          start: ${{ inputs.e2e-start }}
+          wait-on: ${{ inputs.e2e-wait-on }}
+      - if: failure() && inputs.e2e == 'cypress'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-artifacts
+          path: |
+            cypress/screenshots
+            cypress/videos
+          retention-days: 7
+          if-no-files-found: ignore

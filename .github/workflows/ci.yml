@@ -93,7 +93,7 @@ on:
         type: string
         default: npm start
       e2e-wait-on:
-        description: Cypress only. URL to wait for before running.
+        description: Cypress only. URL polled (curl) until the dev server answers.
         type: string
         default: ''
 
@@ -197,12 +197,27 @@ jobs:
           if-no-files-found: ignore
 
       # Cypress
+      # npm 11 skips cypress' postinstall (allowScripts), so install the binary explicitly.
       - if: inputs.e2e == 'cypress'
-        uses: cypress-io/github-action@v6
+        uses: actions/cache@v4
         with:
-          install: false
-          start: ${{ inputs.e2e-start }}
-          wait-on: ${{ inputs.e2e-wait-on }}
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - if: inputs.e2e == 'cypress'
+        run: npx cypress install
+      - if: inputs.e2e == 'cypress'
+        name: Start dev server
+        env:
+          START: ${{ inputs.e2e-start }}
+          WAIT_ON: ${{ inputs.e2e-wait-on }}
+        run: |
+          nohup bash -c "$START" > dev-server.log 2>&1 &
+          if [ -n "$WAIT_ON" ]; then
+            timeout 180 bash -c 'until curl -sf -o /dev/null "$WAIT_ON"; do sleep 2; done' \
+              || { echo "Dev server not up at $WAIT_ON"; tail -50 dev-server.log; exit 1; }
+          fi
+      - if: inputs.e2e == 'cypress'
+        run: npx cypress run
       - if: failure() && inputs.e2e == 'cypress'
         uses: actions/upload-artifact@v4
         with:
